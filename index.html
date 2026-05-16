@@ -1,0 +1,654 @@
+alexhunter_AssistantCeo<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCT - CHANDPUR CYBER TEAM | News Website </title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --blood: #8b0000;
+            --blood-bright: #cc0000;
+            --smoke: #1a1a2e;
+            --smoke-mid: #16213e;
+            --smoke-light: #0f3460;
+            --neon-red: #ff003c;
+            --neon-cyan: #00f5ff;
+            --gold: #ffd700;
+            --ash: #888;
+            --white: #f0f0f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ── BACKGROUND PARTICLE CANVAS ── */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        /* ── TOOLS PANEL ── */
+        .tools-container {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(135deg, rgba(20,0,0,0.95), rgba(10,10,25,0.98));
+            border: 1px solid var(--blood);
+            border-radius: 14px;
+            padding: 20px;
+            width: 100%;
+            max-width: 560px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            box-shadow: 0 0 30px rgba(139,0,0,0.5), 0 0 60px rgba(139,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        @media(min-width: 480px) {
+            .tools-container { grid-template-columns: 1fr 1fr; }
+        }
+
+        .panel-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(139,0,0,0.4);
+        }
+
+        .panel-header .acg-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--neon-red);
+            text-shadow: 0 0 10px var(--neon-red), 0 0 30px rgba(255,0,60,0.5);
+            letter-spacing: 4px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .panel-header .subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--ash);
+            letter-spacing: 3px;
+            margin-top: 4px;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 10px var(--neon-red), 0 0 30px rgba(255,0,60,0.5); }
+            50% { text-shadow: 0 0 20px var(--neon-red), 0 0 50px rgba(255,0,60,0.8), 0 0 80px rgba(255,0,60,0.3); }
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group.full { grid-column: 1 / -1; }
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ash);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        input, textarea, select {
+            padding: 9px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(139,0,0,0.5);
+            border-radius: 7px;
+            color: var(--white);
+            font-family: 'Hind Siliguri', sans-serif;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 10px rgba(255,0,60,0.3);
+        }
+
+        select option { background: #1a0a0a; color: var(--white); }
+        input[type="color"] { padding: 4px; height: 40px; cursor: pointer; }
+        input[type="file"] { cursor: pointer; font-size: 12px; }
+
+
+        /* ── NEWS CARD ── */
+        #news-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 560px;
+            background: #0d0d0d;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(139,0,0,0.6), 0 20px 60px rgba(0,0,0,0.8);
+            border: 1px solid rgba(139,0,0,0.4);
+        }
+
+        /* ── TOP TAG BAR ── */
+        .tag-bar {
+            background: var(--blood);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 14px;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .tag-bar .live-dot {
+            width: 8px; height: 8px;
+            background: #ff4444;
+            border-radius: 50%;
+            animation: blink 1s step-end infinite;
+            margin-right: 6px;
+            display: inline-block;
+            box-shadow: 0 0 6px #ff4444;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ── MAIN PHOTO ── */
+        .main-photo {
+            position: relative;
+            height: 280px;
+            background: #111;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Smoke overlay inside card (CSS only) */
+        .main-photo::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(139,0,0,0.35) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,0,0,0.6) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(80,0,0,0.5) 0%, transparent 40%);
+            z-index: 2;
+            pointer-events: none;
+            animation: smoke-shift 6s ease-in-out infinite alternate;
+        }
+
+        .main-photo::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 100px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        @keyframes smoke-shift {
+            0% { transform: scale(1) translateY(0); opacity: 0.8; }
+            100% { transform: scale(1.05) translateY(-8px); opacity: 1; }
+        }
+
+        #m-img {
+            position: relative;
+            z-index: 1;
+            transition: 0.3s;
+        }
+
+        .mode-cover { width: 100% !important; height: 100% !important; object-fit: cover; }
+        .mode-contain { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* Blood drip SVG overlay */
+        .blood-drip {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 30px;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* ── HEADLINE BOX ── */
+        .headline-box {
+            position: relative;
+            background: linear-gradient(135deg, #1a0000 0%, #0d0000 50%, #200000 100%);
+            padding: 16px 14px 14px;
+            border-left: 4px solid var(--neon-red);
+            overflow: hidden;
+        }
+
+        .headline-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(139,0,0,0.03) 2px,
+                rgba(139,0,0,0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        .acg-badge {
+            display: inline-block;
+            background: var(--blood);
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            font-size: 8px;
+            letter-spacing: 2px;
+            padding: 2px 8px;
+            margin-bottom: 8px;
+            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%);
+        }
+
+        #h-text {
+            font-family: 'Hind Siliguri', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.3;
+            text-shadow: 0 0 20px rgba(255,0,60,0.3);
+        }
+
+        /* ── META ROW ── */
+        .meta-row {
+            background: #0a0000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            border-top: 1px solid rgba(139,0,0,0.3);
+        }
+
+        .meta-row .date-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--ash);
+            letter-spacing: 1px;
+        }
+
+        .meta-row .breaking {
+            font-family: 'Orbitron', monospace;
+            font-size: 9px;
+            color: var(--neon-red);
+            letter-spacing: 2px;
+            animation: flash-text 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flash-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ── BRAND STRIP ── */
+        .brand-strip {
+            background: linear-gradient(90deg, #0d0d0d, #1a0000, #0d0d0d);
+            border-top: 2px solid var(--blood);
+            border-bottom: 1px solid rgba(139,0,0,0.3);
+            padding: 10px 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+        }
+
+        #brand-text {
+            color: var(--neon-red);
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255,0,60,0.6);
+            letter-spacing: 1px;
+        }
+
+        #web-text { color: var(--neon-cyan); font-size: 10px; }
+        #social-text { color: var(--ash); font-size: 10px; }
+
+        /* ── FOOTER AD ── */
+        .footer-ad {
+            background: #0d0d0d;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 3px solid #333;
+        }
+
+        .footer-logo {
+            width: 60px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(139,0,0,0.4);
+            border-radius: 5px;
+            background: rgba(139,0,0,0.08);
+            overflow: hidden;
+        }
+
+        #f-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .footer-info { flex: 1; }
+
+        #ad1-text {
+            display: block;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+
+        #ad2-text {
+            font-size: 11px;
+            color: var(--ash);
+        }
+
+        /* ── CARD BOTTOM SIGNATURE ── */
+        .card-signature {
+            background: var(--blood);
+            text-align: center;
+            padding: 6px;
+            font-family: 'Orbitron', monospace;
+            font-size: 9px;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* ── SAVE BUTTON ── */
+        .save-btn {
+            position: relative;
+            z-index: 10;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 560px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--blood) 0%, #ff0000 50%, var(--blood) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,0,0,0.4), 0 5px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .save-btn:hover {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            box-shadow: 0 0 40px rgba(255,0,0,0.7);
+            transform: translateY(-2px);
+        }
+
+        .save-btn:active { transform: translateY(0); }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: var(--blood); border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ═══ TOOLS PANEL ═══ -->
+    <div class="tools-container">
+        <div class="panel-header">
+            <div class="acg-logo">CCT TEAM NEWS PROTOCAL </div>
+            <div class="subtitle">CCT TEAM · NEWS WEBSITE </div>
+        </div>
+
+        <div class="input-group full">
+            <label>📈 HADLINE </label>
+            <textarea id="in-h" rows="2" oninput="sync()">CCT — Chandpur Cyber Team এর নতুন মিশন</textarea>
+        </div>
+
+        <div class="input-group">
+            <label>📡 Choice Your Channel</label>
+            <input type="text" id="in-brand" value="🔥 CCT | Cyber" oninput="sync()">
+        </div>
+        <div class="input-group">
+            <label>📅 Date</label>
+            <input type="text" id="in-d" value="১৯ এপ্রিল ২০২৬" oninput="sync()">
+        </div>
+        <div class="input-group">
+            <label>🌐 Your Team Website </label>
+            <input type="text" id="in-web" value="cct.cyberteam" oninput="sync()">
+        </div>
+        <div class="input-group">
+            <label>📱 Social Media Link</label>
+            <input type="text" id="in-social" value="▶ cct_official" oninput="sync()">
+        </div>
+
+        <div class="input-group">
+            <label>🌉 Original Photo</label>
+            <input type="file" id="up-m" accept="image/*" onchange="loadM(event)">
+        </div>
+        <div class="input-group">
+            <label>🧭 Logo / ফুটার ফটো</label>
+            <input type="file" id="up-f" accept="image/*" onchange="loadF(event)">
+        </div>
+
+        <div class="input-group">
+            <label>🏖️ Photo Mode</label>
+            <select id="in-mode" onchange="sync()">
+                <option value="mode-contain">সেন্টার ফিট</option>
+                <option value="mode-cover" selected>ফুল ফ্রেম</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>🌃 Background </label>
+            <input type="color" id="in-bg" value="#0d0d0d" oninput="sync()">
+        </div>
+
+        <div class="input-group">
+            <label>▫️Title </label>
+            <input type="text" id="in-ad1" value="Chandpur Cyber Team — CCT" oninput="sync()">
+        </div>
+        <div class="input-group">
+            <label>▫️Description </label>
+            <input type="text" id="in-ad2" value="আমরা নিজেদের শক্তিতে চলি!" oninput="sync()">
+        </div>
+    </div>
+
+    <!-- ═══ NEWS CARD ═══ -->
+    <div id="news-card">
+        <!-- Top live bar -->
+        <div class="tag-bar">
+            <span><span class="live-dot"></span>LIVE</span>
+            <span style="font-size:8px; letter-spacing:3px; opacity:0.7;">CHANDPUR CYBER TEAM</span>
+            <span>CCT</span>
+        </div>
+
+        <!-- Main photo -->
+        <div class="main-photo" id="bg-layer">
+            <img id="m-img" src="" class="mode-cover" style="display:none; width:100%; height:100%; object-fit:cover;">
+            <!-- Blood drip SVG -->
+            <svg class="blood-drip" viewBox="0 0 560 30" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,0 Q40,28 80,10 Q120,28 160,5 Q200,28 240,8 Q280,28 320,5 Q360,28 400,10 Q440,28 480,5 Q520,28 560,0 L560,30 L0,30 Z" fill="#8b0000" opacity="0.85"/>
+                <!-- drip drops -->
+                <ellipse cx="80" cy="30" rx="4" ry="8" fill="#8b0000"/>
+                <ellipse cx="200" cy="28" rx="3" ry="6" fill="#8b0000"/>
+                <ellipse cx="360" cy="30" rx="5" ry="9" fill="#8b0000"/>
+                <ellipse cx="480" cy="27" rx="3" ry="7" fill="#8b0000"/>
+            </svg>
+        </div>
+
+        <!-- Headline -->
+        <div class="headline-box">
+            <div class="cct-badge">◈ CCT BREAKING</div>
+            <h1 id="h-text">CCT — CCT TEAM এর নতুন মিশন</h1>
+        </div>
+
+        <!-- Meta row -->
+        <div class="meta-row">
+            <span class="date-tag" id="d-text">১৯ এপ্রিল ২০২৬</span>
+            <span class="breaking">◾ BREAKING NEWS ◾</span>
+        </div>
+
+        <!-- Brand strip -->
+        <div class="brand-strip">
+            <div id="brand-text">🔸 CCT | TEAM</div>
+            <div id="web-text">Cct.team</div>
+            <div id="social-text">▶ Cct_official</div>
+        </div>
+
+        <!-- Footer ad -->
+        <div class="footer-ad">
+            <div class="footer-logo">
+                <img id="f-img" src="" style="display:none;">
+                <span id="f-placeholder" style="font-family:'Orbitron',monospace; font-size:10px; color:#8b0000; letter-spacing:1px;">CCT</span>
+            </div>
+            <div class="footer-info">
+                <b id="ad1-text">Chandpur Cyber Team — CCT</b><br>
+                <span id="ad2-text">আমরা নিজের মনোবল নিয়ে চলি।</span>
+            </div>
+        </div>
+
+        <!-- Signature -->
+        <div class="card-signature">CHANDPUR • CYBER  • TEAM • CCT</div>
+    </div>
+
+    <button class="save-btn" onclick="download4K()">🖨️ High Quality Print</button>
+
+    <script>
+        /* ── BACKGROUND SMOKE PARTICLES ── */
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 20;
+                this.radius = Math.random() * 40 + 10;
+                this.opacity = Math.random() * 0.15 + 0.03;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = -(Math.random() * 0.6 + 0.2);
+                this.color = Math.random() > 0.6 ? '139,0,0' : '30,30,50';
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.opacity -= 0.0003;
+                this.radius += 0.2;
+                if (this.y < -50 || this.opacity <= 0) this.reset();
+            }
+            draw() {
+                ctx.beginPath();
+                const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                g.addColorStop(0, `rgba(${this.color},${this.opacity})`);
+                g.addColorStop(1, `rgba(${this.color},0)`);
+                ctx.fillStyle = g;
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 60; i++) {
+            const p = new Particle();
+            p.y = Math.random() * canvas.height;
+            particles.push(p);
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        /* ── SYNC FUNCTION ── */
+        function sync() {
+            document.getElementById('h-text').innerText = document.getElementById('in-h').value;
+            document.getElementById('d-text').innerText = document.getElementById('in-d').value;
+            document.getElementById('ad1-text').innerText = document.getElementById('in-ad1').value;
+            document.getElementById('ad2-text').innerText = document.getElementById('in-ad2').value;
+            document.getElementById('brand-text').innerText = document.getElementById('in-brand').value;
+            document.getElementById('web-text').innerText = document.getElementById('in-web').value;
+            document.getElementById('social-text').innerText = document.getElementById('in-social').value;
+            document.getElementById('bg-layer').style.backgroundColor = document.getElementById('in-bg').value;
+
+            const mode = document.getElementById('in-mode').value;
+            const img = document.getElementById('m-img');
+            img.className = mode;
+        }
+
+        /* ── IMAGE LOADERS ── */
+        function loadM(e) {
+            const r = new FileReader();
+            r.onload = () => {
+                const i = document.getElementById('m-img');
+                i.src = r.result;
+                i.style.display = 'block';
+                sync();
+            };
+            if (e.target.files[0]) r.readAsDataURL(e.target.files[0]);
+        }
+
+        function loadF(e) {
+            const r = new FileReader();
+            r.onload = () => {
+                const i = document.getElementById('f-img');
+                i.src = r.result;
+                i.style.display = 'block';
+                document.getElementById('f-placeholder').style.display = 'none';
+            };
+            if (e.target.files[0]) r.readAsDataURL(e.target.files[0]);
+        }
+
+        /* ── DOWNLOAD ── */
+        function download4K() {
+            const card = document.getElementById('news-card');
+            const btn = document.querySelector('.save-btn');
+            btn.innerText = '📲 অপেক্ষা করুন⇨⇨';
+
+            html2canvas(card, {
+                scale: 3,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#0d0d0d'
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'CCT_News_Card.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                btn.innerText = '🖨️ High Quality Print ;
+            });
+        }
+    </script>
+</body>
+</html>
+>       </bQIxMQBzcnRjBmFwcF9pZA8yNzUyNTQ2OTI1OTgyNzkAAR6XDSjWgeV5kgwkqwBBvXmmTAJKdyBmZPRKDYX2sEzq1SSlcCS0SkNWyrD38g_aem_YYZYJbTL0CNWo6NMJ>-s24g&i=1
