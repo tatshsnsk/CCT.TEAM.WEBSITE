@@ -633,20 +633,26 @@ alexhunter_AssistantCeo<!DOCTYPE html>
         function download4K() {
     const card = document.getElementById('news-card');
     const btn = document.querySelector('.save-btn');
-    btn.innerText = '📲 অপেক্ষা করুন⇨⇨';
+    btn.innerText = '⌛ Download Now...';
 
     html2canvas(card, {
         scale: 3,
         useCORS: true,
-        logging: false,
-        backgroundColor: '#0d0d0d'
+        allowTaint: true,
+        backgroundColor: "#0d0d0d"
     }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'CCT_News_Card.png';
+        link.download = 'CCT_News_Official.png';
         link.href = canvas.toDataURL('image/png');
+
+        document.body.appendChild(link); // mobile fix
         link.click();
+        document.body.removeChild(link);
 
         btn.innerText = '🖨️ High Quality Print';
+    }).catch(err => {
+        console.log(err);
+        btn.innerText = '❌ Error আবার চেষ্টা করুন';
     });
 }
     </script>
