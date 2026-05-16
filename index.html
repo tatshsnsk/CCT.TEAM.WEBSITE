@@ -631,23 +631,24 @@ alexhunter_AssistantCeo<!DOCTYPE html>
 
         /* ── DOWNLOAD ── */
         function download4K() {
-            const card = document.getElementById('news-card');
-            const btn = document.querySelector('.save-btn');
-            btn.innerText = '📲 অপেক্ষা করুন⇨⇨';
+    const card = document.getElementById('news-card');
+    const btn = document.querySelector('.save-btn');
+    btn.innerText = '📲 অপেক্ষা করুন⇨⇨';
 
-            html2canvas(card, {
-                scale: 3,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#0d0d0d'
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'CCT_News_Card.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                btn.innerText = '🖨️ High Quality Print ;
-            });
-        }
+    html2canvas(card, {
+        scale: 3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#0d0d0d'
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'CCT_News_Card.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        btn.innerText = '🖨️ High Quality Print';
+    });
+}
     </script>
 </body>
 </html>
